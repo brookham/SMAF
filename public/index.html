@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMAF</title>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <div class="container">
+        <h1>Soil Management Assessment Framework</h1>
+        <p>Drag and drop your CSV file or click to select</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+                <p>Drag & drop your CSV file here</p>
+                <p>or</p>
+                <button class="select-file-btn" onclick="document.getElementById('fileInput').click()">Select File</button>
+            </div>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+        </div>
+
+        <div class="results" id="results" style="display: none;">
+            <h2>Processing Results</h2>
+            <div class="result-info">
+                <p><strong>File:</strong> <span id="fileName"></span></p>
+                <p><strong>Total Rows:</strong> <span id="totalRows"></span></p>
+            </div>
+            <ul class="nav nav-tabs" id="dataTab" role="tablist">
+              <!-- tabs dynamically generated here using js -->
+            </ul>
+            <div class="tab-content" id="dataTabContent">
+                <!-- tab content dynamically generated here using js -->
+            </div>
+        </div>
+
+        <div class="error" id="error" style="display: none;">
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

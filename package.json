@@ -1,0 +1,22 @@
+{
+  "name": "webpage_2",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bootstrap": "^5.3.7",
+    "csv": "^6.3.11",
+    "csv-parser": "^3.2.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "multer": "^2.0.1",
+    "parse-csv": "^0.2.0",
+    "react-bootstrap": "^2.10.10"
+  }
+}
