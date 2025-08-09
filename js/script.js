@@ -4,6 +4,34 @@ const fileInput = document.getElementById('fileInput');    // Hidden file input 
 const results = document.getElementById('results');        // Container to show processing results
 const error = document.getElementById('error');            // Container to show error messages
 
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const csv = e.target.result;
+        const lines = csv.split('\n');
+        const headers = lines[0].split(',');
+        
+        const data = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim()) {
+                const values = lines[i].split(',');
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header.trim()] = values[index]?.trim();
+                });
+                data.push(row);
+            }
+        }
+        
+        // Process your data
+        processData(data);
+    };
+    reader.readAsText(file);
+}
+
 const site = [
   "SampleID", "Site", "Treatment", "Lat", "Long", "Texture",
   "Irrigation", "SampleDepth", "Elevation", "SoilSeries", "Suborder",
