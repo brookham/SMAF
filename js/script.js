@@ -8,28 +8,105 @@ function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+        showError('Please select a CSV file.');
+        return;
+    }
+
+    // Hide any previous errors
+    error.style.display = 'none';
+
+    // Show loading state
+    uploadArea.innerHTML = '<div class="loading">Processing file...</div>';
+
     const reader = new FileReader();
     reader.onload = function(e) {
-        const csv = e.target.result;
-        const lines = csv.split('\n');
-        const headers = lines[0].split(',');
-        
-        const data = [];
-        for (let i = 1; i < lines.length; i++) {
-            if (lines[i].trim()) {
-                const values = lines[i].split(',');
-                const row = {};
-                headers.forEach((header, index) => {
-                    row[header.trim()] = values[index]?.trim();
-                });
-                data.push(row);
+        try {
+            const csv = e.target.result;
+            const data = parseCSV(csv);
+            
+            if (data.length === 0) {
+                showError('The CSV file appears to be empty.');
+                resetUploadArea();
+                return;
             }
+
+            // Display results and process data
+            displayResults(file.name, data.length, data);
+            
+        } catch (error) {
+            console.error('Error processing CSV:', error);
+            showError('Error processing CSV file. Please check the file format.');
+            resetUploadArea();
         }
-        
-        // Process your data
-        processData(data);
     };
+    
+    reader.onerror = function() {
+        showError('Error reading file. Please try again.');
+        resetUploadArea();
+    };
+    
     reader.readAsText(file);
+}
+
+/**
+ * Parse CSV text into array of objects
+ * @param {string} csv - Raw CSV text
+ * @returns {Array} Array of data objects
+ */
+function parseCSV(csv) {
+    const lines = csv.split('\n');
+    if (lines.length < 2) {
+        throw new Error('CSV file must have at least a header row and one data row');
+    }
+
+    // Parse headers and clean them
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const data = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line) {
+            // Handle CSV parsing with potential commas in quoted fields
+            const values = parseCSVLine(line);
+            const row = {};
+            
+            headers.forEach((header, index) => {
+                row[header] = values[index] ? values[index].trim().replace(/"/g, '') : '';
+            });
+            data.push(row);
+        }
+    }
+    
+    return data;
+}
+
+/**
+ * Parse a single CSV line handling quoted fields
+ * @param {string} line - CSV line
+ * @returns {Array} Array of values
+ */
+function parseCSVLine(line) {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            values.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    values.push(current); // Add the last value
+    return values;
 }
 
 const site = [
@@ -802,35 +879,35 @@ function handleFile(file) {
     // Show loading state to user
     uploadArea.innerHTML = '<div class="loading">Processing file...</div>';
 
-    // Prepare file for upload using FormData API
-    const formData = new FormData();
-    formData.append('csvFile', file);  // 'csvFile' matches the multer field name
+    // Use FileReader to read file contents directly in the browser
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const csv = e.target.result;
+            const data = parseCSV(csv);
+            
+            if (data.length === 0) {
+                showError('The CSV file appears to be empty.');
+                resetUploadArea();
+                return;
+            }
 
-    // Send file to server via POST request
-    fetch('/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())  // Parse JSON response
-    .then(data => {
-        // Handle server response
-        if (data.success) {
-            // File processed successfully - display results
-            displayResults(data.fileName, data.totalRows, data.sampleData);
-        } else {
-            // Server returned an error
-            showError(data.error || 'An error occurred while processing the file.');
+            // Display results and process data
+            displayResults(file.name, data.length, data);
+            
+        } catch (error) {
+            console.error('Error processing CSV:', error);
+            showError('Error processing CSV file. Please check the file format.');
+            resetUploadArea();
         }
-    })
-    .catch(err => {
-        // Handle network or other fetch errors
-        console.error('Error:', err);
-        showError('Failed to upload file. Please try again.');
-    })
-    .finally(() => {
-        // Always reset the upload area regardless of success/failure
+    };
+    
+    reader.onerror = function() {
+        showError('Error reading file. Please try again.');
         resetUploadArea();
-    });
+    };
+    
+    reader.readAsText(file);
 }
 
 /* ===== RESULTS DISPLAY FUNCTION ===== */
