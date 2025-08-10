@@ -849,6 +849,9 @@ function handleFile(file) {
             // Display results and process data
             displayResults(file.name, data.length, data);
             
+            // Reset upload area after successful processing
+            resetUploadArea();
+            
         } catch (error) {
             console.error('Error processing CSV:', error);
             showError('Error processing CSV file. Please check the file format.');
