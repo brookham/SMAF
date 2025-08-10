@@ -4,52 +4,6 @@ const fileInput = document.getElementById('fileInput');    // Hidden file input 
 const results = document.getElementById('results');        // Container to show processing results
 const error = document.getElementById('error');            // Container to show error messages
 
-function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.name.toLowerCase().endsWith('.csv')) {
-        showError('Please select a CSV file.');
-        return;
-    }
-
-    // Hide any previous errors
-    error.style.display = 'none';
-
-    // Show loading state
-    uploadArea.innerHTML = '<div class="loading">Processing file...</div>';
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const csv = e.target.result;
-            const data = parseCSV(csv);
-            
-            if (data.length === 0) {
-                showError('The CSV file appears to be empty.');
-                resetUploadArea();
-                return;
-            }
-
-            // Display results and process data
-            displayResults(file.name, data.length, data);
-            
-        } catch (error) {
-            console.error('Error processing CSV:', error);
-            showError('Error processing CSV file. Please check the file format.');
-            resetUploadArea();
-        }
-    };
-    
-    reader.onerror = function() {
-        showError('Error reading file. Please try again.');
-        resetUploadArea();
-    };
-    
-    reader.readAsText(file);
-}
-
 /**
  * Parse CSV text into array of objects
  * @param {string} csv - Raw CSV text
